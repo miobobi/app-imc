@@ -14,14 +14,18 @@ import IdealWeight from './IdealWeight';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeContext } from '../context/ThemeContext';
 
+// Componente principal que exibe o formulário e realiza o cálculo do IMC
 export default function FormIMC() {
   const { theme } = useContext(ThemeContext);
+
+  // Estados para altura, peso, IMC, classificação e histórico
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [imc, setImc] = useState(null);
   const [classification, setClassification] = useState('');
   const [history, setHistory] = useState([]);
 
+  // Carrega o histórico salvo no AsyncStorage ao iniciar
   useEffect(() => {
     loadHistory();
   }, []);
@@ -37,6 +41,7 @@ export default function FormIMC() {
     await AsyncStorage.setItem('imcHistory', JSON.stringify(newHistory));
   };
 
+  // Validação simples das entradas
   const validateInputs = () => {
     if (!height || !weight || isNaN(height) || isNaN(weight)) {
       Alert.alert('Erro', 'Informe altura e peso válidos!');
@@ -45,6 +50,7 @@ export default function FormIMC() {
     return true;
   };
 
+  // Retorna o texto de classificação de acordo com o valor do IMC
   const classifyIMC = (imc) => {
     if (imc < 18.5) return 'Abaixo do peso';
     if (imc < 25) return 'Peso normal';
@@ -54,6 +60,7 @@ export default function FormIMC() {
     return 'Obesidade grau 3 (mórbida)';
   };
 
+  // Cálculo do IMC com base na fórmula peso / altura^2
   const calcIMC = () => {
     if (!validateInputs()) return;
     const heightNum = parseFloat(height);
@@ -67,6 +74,7 @@ export default function FormIMC() {
 
   return (
     <View style={styles.formContext}>
+      {/* Campo de entrada para altura */}
       <TextInput
         style={[styles.input, { backgroundColor: theme.input, color: theme.text }]}
         placeholder="Altura (ex: 1.75)"
@@ -75,6 +83,8 @@ export default function FormIMC() {
         value={height}
         onChangeText={setHeight}
       />
+
+      {/* Campo de entrada para peso */}
       <TextInput
         style={[styles.input, { backgroundColor: theme.input, color: theme.text }]}
         placeholder="Peso (ex: 70)"
@@ -83,12 +93,16 @@ export default function FormIMC() {
         value={weight}
         onChangeText={setWeight}
       />
+
+      {/* Botão para calcular o IMC */}
       <TouchableOpacity
         style={[styles.button, { backgroundColor: theme.primary }]}
         onPress={calcIMC}
       >
         <Text style={styles.buttonText}>Calcular IMC</Text>
       </TouchableOpacity>
+
+      {/* Exibição dos resultados, caso o IMC tenha sido calculado */}
       {imc && (
         <>
           <Result result={imc} />
